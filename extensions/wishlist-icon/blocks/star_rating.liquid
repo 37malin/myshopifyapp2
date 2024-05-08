@@ -1,0 +1,38 @@
+<style>
+  .wishlist_button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .wishlist_button:hover {
+    background-color: #dedede;
+  }
+</style>
+
+<button class="wishlist_button">
+  <svg width="14" height="12" viewBox="0 0 14 12" fill="{{ block.settings.icon-color }}" xmlns="http://www.w3.org/2000/svg">
+  <path d="M7.0041 11.3826L1.52973 6.42397C-1.44548 3.44876 2.92807 -2.26363 7.0041 2.35785C11.0801 -2.26363 15.4339 3.4686 12.4785 6.42397L7.0041 11.3826Z" stroke="{{ block.settings.icon-color }}" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+{{ block.settings.text }}
+</button>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+
+{% schema %}
+{
+  "name": "Wishlist",
+  "target": "section",
+  "settings": [
+    { "type": "product", "id": "product", "label": "product", "autofill": true },
+    { "type": "color", "id": "icon-color", "label": "Icon Colour", "default": "#ff0000" },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Add Wishlist"
+    }
+  ]
+}
+{% endschema %}
