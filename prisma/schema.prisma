@@ -23,3 +23,9 @@ model Session {
   accessToken String
   userId      BigInt?
 }
+
+model Settings {
+  id          String    @id
+  name        String
+  description String?
+}
