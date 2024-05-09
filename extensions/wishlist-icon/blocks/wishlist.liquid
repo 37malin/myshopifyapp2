@@ -1,25 +1,18 @@
-<style>
-  .wishlist_button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-  }
-  .wishlist_button:hover {
-    background-color: #dedede;
-  }
-</style>
+<div class="wishlist-inspire__icon" x-data="wishlist">
 
-<div x-data="wishlist">
-  <button class="wishlist_button" @click="addToWishlist()">
-    <svg width="14" height="12" viewBox="0 0 14 12" stroke-width="2" stroke="#000" :fill="wishlisted ? '#000' : '#fff'" xmlns="http://www.w3.org/2000/svg">
-    <path d="M7.0041 11.3826L1.52973 6.42397C-1.44548 3.44876 2.92807 -2.26363 7.0041 2.35785C11.0801 -2.26363 15.4339 3.4686 12.4785 6.42397L7.0041 11.3826Z" stroke="wishlisted ? #000 : '#fff'" stroke-linecap="round" stroke-linejoin="round"/>
+  <button type="button" @click.debounce="addToWishlist()">
+    <svg class="wishlist-inspire__icon--svg" viewBox="0 0 24 24" stroke-width="2" stroke="#000" :fill="wishlisted ? '#000': '#fff' ">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.73 2 12.27 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.77-3.4 7.23-8.55 11.53L12 21.35z"/>
     </svg>
-
-  {{ block.settings.text }}
+    {% if block.settings.text != blank %}
+      <span class="wishlist-inspire__icon--text">{{ block.settings.text }}</span>
+    {% endif %}
   </button>
+
 </div>
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('wishlist', () => ({
@@ -34,10 +27,11 @@
                   .catch(error => console.log('error', error));
             },
             wishlisted: false,
-            appUrl: "https://local-straight-readily-webcast.trycloudflare.com",
- 
+            appUrl: "https://local-straight-readily-webcast.trycloudflare.com/",
             addToWishlist() {
-                {%  unless customer %} 
+                // TODO: send data to database save wishlist
+                {%  unless customer  %}
+                  // If customer is not login, show an alert to login
                   alert('Please login to add to wishlist');
                   return;
                 {% endunless %}
@@ -48,44 +42,81 @@
                 formdata.append("shop", "{{ shop.permanent_domain }}");
                 formdata.append("_action", "CREATE");
 
+                // If product is already in wishlist, remove it
                 if(this.wishlisted){
                   this.wishlisted = false;
+                  // update formdata _action to delete
                   formdata.set("_action", "DELETE");
                 }
 
                 var requestOptions = {
-                  method: "POST",
+                  method: 'POST',
                   body: formdata,
-                  redirect: "follow"
+                  redirect: 'follow'
                 };
 
-                fetch(this.appUrl + "/api/wishlist", requestOptions)
-                  .then(response => response.text())
-                  .then(result => {
-                    if(result.wishlisted){
+                fetch(this.appUrl + "api/wishlist", requestOptions)
+                    .then(response => response.json())
+                    .then(result => {
+                        if(result.wishlisted){
                           this.wishlisted = true;
                         }else{
                           this.wishlisted = false;
                         }
-                  })
-                  .catch(error => console.log('error', error));
-                            }
-                        }))
                     })
+                    .catch(error => console.log('error', error));
+
+
+            }
+        }))
+    })
 </script>
 
+
+<style>
+  .wishlist-inspire__icon{
+    display: flex;
+    justify-content: center;
+    max-width: 44rem;
+  }
+  .wishlist-inspire__icon button{
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .wishlist-inspire__icon--svg{
+    width: 2rem;
+    height: 2rem;
+  }
+
+</style>
 {% schema %}
 {
-  "name": "Wishlist",
+  "name": "Wishlist icon",
   "target": "section",
   "settings": [
-    { "type": "product", "id": "product", "label": "product", "autofill": true },
-    { "type": "color", "id": "icon-color", "label": "Icon Colour", "default": "#ff0000" },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "product",
+      "autofill": true
+    },
     {
       "type": "text",
       "id": "text",
       "label": "Text",
-      "default": "Add Wishlist"
+      "default": "Add to wishlist"
+    },
+    {
+      "type": "color",
+      "id": "colour",
+      "label": "Icon Colour",
+      "default": "#ff0000"
     }
   ]
 }
