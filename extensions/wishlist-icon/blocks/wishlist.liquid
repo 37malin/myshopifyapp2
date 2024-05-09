@@ -1,0 +1,74 @@
+<style>
+  .wishlist_button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .wishlist_button:hover {
+    background-color: #dedede;
+  }
+</style>
+
+<div x-data="wishlist">
+  <button class="wishlist_button" @click="addToWishlist()">
+    <svg width="14" height="12" viewBox="0 0 14 12" stroke-width="2" stroke="#000" :fill="wishlisted ? '#000' : '#fff'" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.0041 11.3826L1.52973 6.42397C-1.44548 3.44876 2.92807 -2.26363 7.0041 2.35785C11.0801 -2.26363 15.4339 3.4686 12.4785 6.42397L7.0041 11.3826Z" stroke="wishlisted ? #000 : '#fff'" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+  {{ block.settings.text }}
+  </button>
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"></script>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('wishlist', () => ({
+            wishlisted: false,
+            appUrl: "https://mario-salem-prediction-armenia.trycloudflare.com",
+ 
+            addToWishlist() {
+                
+
+                {%  unless customer %} 
+                  alert('Please login to add to wishlist');
+                  return;
+                {% endunless %}
+
+                const formdata = new FormData();
+                formdata.append("customerId", "{{ customer.id }}");
+                formdata.append("productId", "{{ product.id }}");
+                formdata.append("shop", "{{ shop.permanent_domain }}");
+
+                const requestOptions = {
+                  method: "POST",
+                  body: formdata,
+                  redirect: "follow"
+                };
+
+                fetch(this.appUrl + "/api/wishlist", requestOptions)
+                  .then(response => response.text())
+                  .then(result => {
+                    this.wishlisted = ! this.wishlisted;
+                  })
+                  .catch(error => console.log('error', error));
+                            }
+                        }))
+                    })
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist",
+  "target": "section",
+  "settings": [
+    { "type": "product", "id": "product", "label": "product", "autofill": true },
+    { "type": "color", "id": "icon-color", "label": "Icon Colour", "default": "#ff0000" },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Add Wishlist"
+    }
+  ]
+}
+{% endschema %}
