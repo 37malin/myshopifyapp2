@@ -23,23 +23,37 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('wishlist', () => ({
+            init(){
+              fetch(this.appUrl + "api/wishlist"+"?customerId={{ customer.id }}&productId={{ product.id }}&shop={{ shop.permanent_domain }}")
+                  .then(response => response.json())
+                  .then(result => {
+                      if(result.data.length > 0){
+                        this.wishlisted = true;
+                      }
+                  })
+                  .catch(error => console.log('error', error));
+            },
             wishlisted: false,
-            appUrl: "https://mario-salem-prediction-armenia.trycloudflare.com",
+            appUrl: "https://local-straight-readily-webcast.trycloudflare.com",
  
             addToWishlist() {
-                
-
                 {%  unless customer %} 
                   alert('Please login to add to wishlist');
                   return;
                 {% endunless %}
 
-                const formdata = new FormData();
+                var formdata = new FormData();
                 formdata.append("customerId", "{{ customer.id }}");
                 formdata.append("productId", "{{ product.id }}");
                 formdata.append("shop", "{{ shop.permanent_domain }}");
+                formdata.append("_action", "CREATE");
 
-                const requestOptions = {
+                if(this.wishlisted){
+                  this.wishlisted = false;
+                  formdata.set("_action", "DELETE");
+                }
+
+                var requestOptions = {
                   method: "POST",
                   body: formdata,
                   redirect: "follow"
@@ -48,7 +62,11 @@
                 fetch(this.appUrl + "/api/wishlist", requestOptions)
                   .then(response => response.text())
                   .then(result => {
-                    this.wishlisted = ! this.wishlisted;
+                    if(result.wishlisted){
+                          this.wishlisted = true;
+                        }else{
+                          this.wishlisted = false;
+                        }
                   })
                   .catch(error => console.log('error', error));
                             }
